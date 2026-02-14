@@ -38,14 +38,13 @@
 
 // ___________________________________________________________________
 
+import 'dotenv/config';
 import express from 'express';
 import Logger from "./logger.js"
-import { config } from "dotenv"
 import { connectDB, disconnectDB } from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import movieRoutes from "./routes/movieRoutes.js"
-
-config()
+import watchListRoutes from "./routes/watchlistRoutes.js"
 connectDB()
 
 const app = express()
@@ -57,6 +56,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/movies", movieRoutes)
 app.use("/auth", authRoutes)
+app.use("/watchlist", watchListRoutes)
 
 app.get("/hello",(req, res) => {
   res.json({message: "Hello World"})
@@ -64,7 +64,7 @@ app.get("/hello",(req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   logger.log(`Server running at http://localhost:${PORT}`);
 })
 
@@ -72,7 +72,7 @@ app.listen(PORT, () => {
 //handle unhandle promise rejections (eg.database connection error)
 
 process.on("unhandledRejection", (err) => {
-  logger.error("Unhandle Rejection", err)
+  logger.error(err)
   server.close(async () => {
     await disconnectDB();
     process.exit(1)
@@ -80,7 +80,7 @@ process.on("unhandledRejection", (err) => {
 })
 
 process.on("uncaughtException", (err) => {
-  logger.error("Uncaught Exception", err)
+  logger.error(err)
   server.close(async () => {
     await disconnectDB();
     process.exit(1)

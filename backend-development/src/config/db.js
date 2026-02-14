@@ -1,10 +1,10 @@
 import {PrismaClient} from "@prisma/client"
 import Logger from "../logger.js";
 
-const logger = new Logger()
+const logger = new Logger('DB')
 
 const prisma = new PrismaClient({
-  log: processs.env.NODE_ENV === "development" ? ['query', 'error', 'warn'] : ['error'],
+  log: process.env.NODE_ENV === "development" ? ['query', 'error', 'warn'] : ['error'],
 })
 
 const connectDB = async() => {
@@ -12,8 +12,8 @@ const connectDB = async() => {
     await prisma.$connect();
     logger.log("DB connected via prisma")
   } catch (error) {
-    logger.error(`DataBase connection error: ${error.message}`)
-    processs.exit(1)
+    logger.error(error)
+    process.exit(1)
   }
 };
 
